@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.atguigu.gmall.product.mapper.SpuSaleAttrMapper">
+
+    <!--    autoMapping设置可以spu_id和spuId自动识别匹配，类似字段都可以-->
+    <resultMap id="spuSaleAttrMap" type="com.atguigu.gmall.model.product.SpuSaleAttr" autoMapping="true">
+        <id column="id" property="id"></id>
+        <collection property="spuSaleAttrValueList" ofType="com.atguigu.gmall.model.product.SpuSaleAttrValue"
+                    autoMapping="true">
+            <id column="sale_attr_value_id" property="id"></id>
+        </collection>
+    </resultMap>
+    <!--  这里返回的数据结果由resultmap封装  -->
+    <select id="getSpuSaleAttrList" resultMap="spuSaleAttrMap">
+        SELECT ssa.id,
+               ssa.spu_id,
+               ssa.base_sale_attr_id,
+               ssav.sale_attr_name,
+               ssav.id sale_attr_value_id,
+               ssav.sale_attr_value_name
+        FROM spu_sale_attr ssa
+                 INNER JOIN spu_sale_attr_value ssav ON ssa.spu_id = ssav.spu_id
+            AND ssav.base_sale_attr_id = ssa.base_sale_attr_id
+        WHERE ssa.spu_id = #{spuId}
+    </select>
+
+
+    <!-- 后台管理显示销售属性，即颜色和内存，返回结果差不多，多了   -->
+    <select id="getSpuSaleAttrListCheckBySku" resultMap="spuSaleAttrMap">
+        SELECT ssa.id,
+               ssa.spu_id,
+               ssa.base_sale_attr_id,
+               ssav.sale_attr_name,
+               ssav.id sale_attr_value_id,
+               ssav.sale_attr_value_name,
+               skv.sku_id,
+               IF (skv.sku_id IS NULL, 0, 1) is_checked
+        FROM spu_sale_attr ssa
+                 INNER JOIN spu_sale_attr_value ssav ON ssa.spu_id = ssav.spu_id
+            AND ssav.base_sale_attr_id = ssa.base_sale_attr_id
+                 LEFT JOIN sku_sale_attr_value skv ON skv.sale_attr_value_id = ssav.id
+            AND skv.sku_id = #{skuId}
+        WHERE ssa.spu_id = #{spuId}
+        order by ssav.base_sale_attr_id,ssav.id
+
+    </select>
+</mapper>

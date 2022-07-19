@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.atguigu.gmall.product.mapper.SkuSaleAttrValueMapper">
+
+    <!--    sku_sale_attr_value  spu_sale_attr_value -->
+    <select id="selectSaleAttrValuesBySpu" resultType="map">
+        SELECT sv.sku_id,
+               GROUP_CONCAT(sp.id ORDER BY sp.base_sale_attr_id SEPARATOR "|") value_ids
+        FROM sku_sale_attr_value sv
+                 INNER JOIN spu_sale_attr_value sp ON sv.sale_attr_value_id = sp.id
+        WHERE sp.spu_id = #{spuId}
+        GROUP BY sv.sku_id
+    </select>
+</mapper>
